@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinayaka Chavithi 2026 | Celebrate Together</title>
+  <style>
+    :root { --ink:#310707; --muted:#70423a; --cream:#fff4df; --saffron:#b70d14; --marigold:#dca621; --leaf:#7f1717; --rose:#9e070c; --line:#e7c99c; --white:#fffaf1; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:Georgia, 'Times New Roman', serif; color:var(--ink); background:var(--cream); }
+    .wrap { max-width:1120px; margin:0 auto; padding:0 24px; }
+    .topbar { background:var(--saffron); color:#fff6e4; text-align:center; padding:9px 16px; font:600 13px/1.2 Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+    header { background:var(--white); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+    nav { min-height:70px; display:flex; justify-content:space-between; align-items:center; gap:22px; }
+    .brand { color:var(--ink); text-decoration:none; font-size:20px; font-weight:bold; display:flex; align-items:center; gap:10px; }
+    .brand img { width:42px; height:42px; object-fit:cover; object-position:50% 20%; border-radius:50%; border:2px solid var(--marigold); }
+    .brand small { display:block; color:var(--saffron); font:700 10px Arial,sans-serif; letter-spacing:.18em; text-transform:uppercase; margin-top:2px; }
+    .navlinks { display:flex; gap:22px; align-items:center; font:600 14px Arial,sans-serif; }
+    .navlinks a { color:var(--ink); text-decoration:none; }
+    .button { display:inline-flex; align-items:center; justify-content:center; border:0; cursor:pointer; padding:13px 18px; background:var(--saffron); color:white; text-decoration:none; font:700 13px Arial,sans-serif; letter-spacing:.04em; border-radius:3px; box-shadow:0 3px 0 #ae4e0d; }
+    .button:hover { transform:translateY(-1px); background:#d96616; }
+    .hero { overflow:hidden; position:relative; background:linear-gradient(135deg,#fff4df 0%,#ffe0a4 100%); padding:80px 0 76px; }
+    .hero:after { content:'ॐ'; position:absolute; right:5%; bottom:-95px; font-size:360px; line-height:1; color:rgba(183,13,20,.12); }
+    .hero-grid { position:relative; z-index:1; display:grid; grid-template-columns:1.2fr .8fr; gap:45px; align-items:center; }
+    .eyebrow { color:var(--rose); font:700 12px Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { font-size:clamp(40px,6vw,72px); line-height:.98; margin:14px 0 18px; max-width:650px; }
+    .hero p { max-width:565px; color:var(--muted); font-size:19px; line-height:1.55; margin:0 0 28px; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .outline { background:transparent; color:var(--ink); border:1px solid var(--ink); box-shadow:none; }
+    .outline:hover { background:#fff2d5; }
+    .ganesha { width:min(330px,100%); aspect-ratio:1; margin:auto; border-radius:50%; background:#bb0b12; border:13px solid #fff7e6; outline:4px solid var(--marigold); display:grid; place-items:center; overflow:hidden; box-shadow:0 18px 40px rgba(91,8,8,.22); }
+    .ganesha img { width:100%; height:100%; object-fit:cover; }
+    main { padding:74px 0; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:22px; margin-bottom:26px; }
+    h2 { font-size:38px; line-height:1.1; margin:8px 0 0; }
+    .section-note { max-width:350px; margin:0; color:var(--muted); font:15px/1.5 Arial,sans-serif; }
+    .leaderboard { display:grid; grid-template-columns:1.08fr .92fr; gap:28px; }
+    .panel { background:var(--white); border:1px solid var(--line); border-radius:8px; padding:24px; }
+    .board-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:17px; border-bottom:1px solid var(--line); font-size:19px; font-weight:bold; }
+    .total { color:var(--leaf); font:700 13px Arial,sans-serif; }
+    .donor { display:grid; grid-template-columns:38px 1fr auto; align-items:center; gap:12px; padding:16px 4px; border-bottom:1px solid #f0e5d3; font:15px Arial,sans-serif; }
+    .donor:last-child { border-bottom:0; }
+    .rank { width:29px; height:29px; display:grid; place-items:center; border-radius:50%; background:#fff0c7; color:#81520a; font-weight:bold; }
+    .donor:first-of-type .rank { background:var(--marigold); color:#573605; }
+    .person strong { display:block; font-size:15px; color:var(--ink); margin-bottom:3px; }.person span { color:var(--muted); font-size:12px; }
+    .amount { color:var(--leaf); font-weight:bold; }
+    #donorList .donor { display:none; }
+    #donorList::after { content:'The Sri Mahakaala Vinayaka Samithi will publish contribution updates here.'; display:block; padding:20px 4px; color:var(--muted); font:15px/1.5 Arial,sans-serif; }
+    .form-intro { color:var(--muted); line-height:1.5; margin:12px 0 20px; }
+    label { display:block; font:700 12px Arial,sans-serif; letter-spacing:.05em; text-transform:uppercase; margin:14px 0 7px; }
+    input { width:100%; border:1px solid #cfbca4; background:#fffefa; padding:12px; border-radius:3px; font:15px Arial,sans-serif; color:var(--ink); }
+    input:focus { outline:3px solid rgba(244,184,36,.35); border-color:var(--saffron); }
+    .donation-form .button { margin-top:20px; width:100%; }
+    .poll-section { margin-top:88px; background:var(--leaf); color:#fffaf0; padding:66px 0; }
+    .poll-section .eyebrow { color:#ffd365; }.poll-section h2 { color:#fffaf0; }.poll-section .section-note { color:#d8efe1; }
+    .poll-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+    .poll-card { background:#fffdf6; color:var(--ink); border-radius:8px; padding:26px; }
+    .poll-question { margin:0 0 18px; font-size:22px; }
+    .choice { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; width:100%; padding:14px 0; border:0; border-bottom:1px solid #e9dfcf; background:transparent; text-align:left; color:var(--ink); cursor:pointer; font:16px Georgia,serif; }
+    .choice:last-of-type { border-bottom:0; }.choice:hover span:first-child { color:var(--saffron); }
+    .vote-count { display:none; }.choice.selected span:first-child { color:var(--rose); font-weight:bold; }
+    #donorList .donor { display:grid; } #donorList::after { display:none; }
+    #choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    #choices .choice { min-height:180px; padding:16px; border:0; border-radius:6px; align-items:end; color:#fffaf1; background-size:cover; background-position:center; position:relative; overflow:hidden; }
+    #choices .choice span:first-child { position:relative; z-index:1; font-size:19px; line-height:1.2; text-shadow:0 2px 8px #310707; }
+    #choices .choice:nth-child(1) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/rangoli,india'); }
+    #choices .choice:nth-child(2) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/modak,indian,sweets'); }
+    #choices .choice:nth-child(3) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/indian,dance,festival'); }
+    #choices .choice:nth-child(4) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://images.moneycontrol.com/static-mcnews/2024/09/20240904055357_Clay-Ganesha-idol.jpg?height=431&impolicy=website&width=770'); }
+    @media(max-width:520px) { #choices { grid-template-columns:1fr; } #choices .choice { min-height:150px; } }
+    .poll-summary { display:flex; flex-direction:column; justify-content:center; padding:18px 12px; }
+    .poll-summary h3 { font-size:29px; margin:0 0 14px; }.poll-summary p { color:#d8efe1; font:17px/1.55 Arial,sans-serif; margin:0 0 20px; }
+    .vote-message { min-height:23px; color:#ffe29b; font:700 14px Arial,sans-serif; }
+    .schedule { padding:75px 0 10px; }.events { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .event { border-top:4px solid var(--marigold); background:var(--white); padding:22px; }.event time { color:var(--rose); font:700 12px Arial,sans-serif; letter-spacing:.08em; }.event h3 { font-size:23px; margin:11px 0 8px; }.event p { margin:0; color:var(--muted); font:15px/1.5 Arial,sans-serif; }
+    footer { margin-top:64px; padding:28px 0; background:var(--ink); color:#f7e8ce; text-align:center; font:14px Arial,sans-serif; }
+    @media (max-width:760px) { .navlinks { display:none; }.hero { padding:57px 0; }.hero-grid,.leaderboard,.poll-grid { grid-template-columns:1fr; }.ganesha { max-width:240px; font-size:118px; }.section-head { display:block; }.section-note { margin-top:12px; }.events { grid-template-columns:1fr; } h2 { font-size:32px; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">Sri Mahakaala Vinayaka Samithi &nbsp;•&nbsp; Ganapati Bappa Morya</div>
+  <header><nav class="wrap"><a class="brand" href="#home"><img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Sri Mahakaala Vinayaka Samithi logo"><span>Sri Mahakaala Vinayaka<small>Samithi • Community Celebration</small></span></a><div class="navlinks"><a href="about.html">About</a><a href="#poll">Activities</a><a href="contact.html">Contact</a><a class="button" href="payment.html">Contribute</a></div></nav></header>
+  <section class="hero" id="home"><div class="wrap hero-grid"><div><div class="eyebrow">Sri Mahakaala Vinayaka Samithi presents</div><h1>Celebrate with devotion, joy &amp; togetherness.</h1><p>Join Sri Mahakaala Vinayaka Samithi for our Vinayaka Chavithi celebrations. Your contribution helps us create a beautiful, inclusive festival for everyone.</p><div class="hero-actions"><a class="button" href="payment.html">Make a donation</a><a class="button outline" href="#poll">Choose an activity</a></div></div><div class="ganesha"><img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Sri Mahakaala Vinayaka Samithi - Lord Ganesha"></div></div></section>
+  <main id="donations" class="wrap"><div class="section-head"><div><div class="eyebrow">Community contributions</div><h2>Donation leaderboard</h2></div><p class="section-note">Every offering, big or small, makes the celebration brighter. Thank you for supporting our pandal.</p></div>
+    <div class="leaderboard"><section class="panel"><div class="board-title"><span>Top Contributors</span><span class="total" id="totalAmount">₹ 30,500 raised</span></div><div id="donorList"><div class="donor"><span class="rank">1</span><span class="person"><strong>Ramesh &amp; Family</strong><span>Grand Sponsor</span></span><span class="amount">₹ 10,000</span></div><div class="donor"><span class="rank">2</span><span class="person"><strong>Priya Nair</strong><span>Community Friend</span></span><span class="amount">₹ 7,500</span></div><div class="donor"><span class="rank">3</span><span class="person"><strong>Vikram Rao</strong><span>Community Friend</span></span><span class="amount">₹ 5,000</span></div><div class="donor"><span class="rank">4</span><span class="person"><strong>Meera &amp; Kiran</strong><span>Well-wisher</span></span><span class="amount">₹ 4,500</span></div><div class="donor"><span class="rank">5</span><span class="person"><strong>Ananya Sharma</strong><span>Well-wisher</span></span><span class="amount">₹ 3,500</span></div></div></section>
+      <section class="panel"><div class="eyebrow">Sri Mahakaala Vinayaka Samithi</div><h3 style="font-size:27px;margin:9px 0 0">Be part of the celebration</h3><p class="form-intro">Contribute securely to the Sri Mahakaala Vinayaka Samithi celebration. Your donation will appear on the leaderboard once payment is confirmed.</p><a class="button" style="width:100%;margin-top:20px" href="payment.html">Continue to payment</a></section></div>
+  </main>
+  <section class="poll-section" id="poll"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Festival fun</div><h2>What should we do together?</h2></div><p class="section-note">Cast a vote for the activity you’re most excited about. The most-loved choices will shape our programme.</p></div><div class="poll-grid"><section class="poll-card"><h3 class="poll-question">Pick your favourite activity</h3><div id="choices"><button class="choice" data-choice="Rangoli competition"><span>🌼 Rangoli competition</span><span class="vote-count">42 votes</span></button><button class="choice" data-choice="Kids' Modak workshop"><span>🧁 Kids' Modak workshop</span><span class="vote-count">37 votes</span></button><button class="choice" data-choice="Music & dance evening"><span>🎶 Music &amp; dance evening</span><span class="vote-count">55 votes</span></button><button class="choice" data-choice="Eco-idol making"><span>🌿 Eco-idol making</span><span class="vote-count">29 votes</span></button></div></section><aside class="poll-summary"><h3>Your voice makes the festival.</h3><p>We’ll announce the final programme after the community poll closes on 20 August.</p><div class="vote-message" id="voteMessage" aria-live="polite">Choose one activity to cast your vote.</div></aside></div></div></section>
+  <section class="schedule wrap" id="schedule"><div class="section-head"><div><div class="eyebrow">Save the date</div><h2>Celebration highlights</h2></div></div><div class="events"><article class="event"><time>14 SEPTEMBER • 8:00 AM</time><h3>Sthapana &amp; Puja</h3><p>A warm welcome to Bappa followed by traditional prayers and prasad.</p></article><article class="event"><time>14 SEPTEMBER • 6:30 PM</time><h3>Evening Aarti</h3><p>Gather with neighbours for aarti, bhajans and shared festive moments.</p></article><article class="event"><time>14 SEPTEMBER</time><h3>Community Celebration</h3><p>A joyful gathering with music, flowers and eco-conscious rituals.</p></article></div></section>
+  <footer>Made with devotion by Sri Mahakaala Vinayaka Samithi &nbsp;•&nbsp; <a href="privacy.html" style="color:#f7e8ce">Privacy Policy</a> &nbsp;•&nbsp; <a href="terms.html" style="color:#f7e8ce">Terms &amp; Conditions</a> &nbsp;•&nbsp; Ganapati Bappa Morya!</footer>
+  <script>
+    const donors = [
+      {name:'Ramesh & Family', amount:10000, label:'Grand Sponsor'}, {name:'Priya Nair', amount:7500, label:'Community Friend'}, {name:'Vikram Rao', amount:5000, label:'Community Friend'}, {name:'Meera & Kiran', amount:4500, label:'Well-wisher'}, {name:'Ananya Sharma', amount:3500, label:'Well-wisher'}
+    ];
+    const format = n => '₹ ' + n.toLocaleString('en-IN');
+    function renderDonors() { donors.sort((a,b)=>b.amount-a.amount); document.getElementById('donorList').innerHTML = donors.slice(0,5).map((d,i)=>`<div class="donor"><span class="rank">${i+1}</span><span class="person"><strong>${d.name.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</strong><span>${d.label}</span></span><span class="amount">${format(d.amount)}</span></div>`).join(''); document.getElementById('totalAmount').textContent = format(donors.reduce((sum,d)=>sum+d.amount,0))+' raised'; }
+    document.querySelectorAll('.choice').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected')); button.classList.add('selected'); const count = button.querySelector('.vote-count'); count.textContent = (Number(count.textContent.match(/\d+/)[0])+1)+' votes'; document.getElementById('voteMessage').textContent = `Your vote for ${button.dataset.choice} has been counted. Thank you!`; }));
+  </script>
+  <script>
+    const auctionSection = document.getElementById('donations');
+    auctionSection.querySelector('h2').textContent = 'Laddoo Auction Contributions';
+    auctionSection.querySelector('.eyebrow').textContent = 'Sri Mahakaala Vinayaka Samithi';
+    auctionSection.querySelector('.section-note').textContent = 'Laddoo auction contributions are published by the Samithi.';
+    document.querySelector('.board-title span').textContent = 'Laddoo Auction Contributors';
+    document.getElementById('totalAmount').textContent = 'Rs. 6,000 raised';
+    document.getElementById('donorList').innerHTML = '<div class="donor"><span class="rank">1</span><span class="person"><strong>Jithendra</strong><span>Laddoo Auction Contribution</span></span><span class="amount">Rs. 3,500</span></div><div class="donor"><span class="rank">2</span><span class="person"><strong>C Abhi</strong><span>Laddoo Auction Contribution</span></span><span class="amount">Rs. 2,500</span></div>';
+    document.getElementById('poll').insertAdjacentHTML('beforebegin', '<section class="committee"><div class="wrap"><div class="eyebrow">Sri Mahakaala Vinayaka Samithi</div><h2>Committee Members</h2><div class="committee-list"><span>P Harish</span><span>K Pranav Nani</span><span>K Prajwal</span><span>AD Vikram</span><span>Jithendra</span><span>ThulasiNath</span><span>S Varun Kumar</span><span>C Abhilash</span><span>D Abhilash</span><span>Nithun Kumar</span><span>Rahul</span></div></div></section>');
+  </script>
+  <style>
+    .committee { padding:68px 0; background:#fff4df; }
+    .committee-list { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+    .committee-list span { background:#fffaf1; border:1px solid #e7c99c; border-left:4px solid #b70d14; border-radius:5px; padding:12px 15px; font:600 15px Arial,sans-serif; }
+  </style>
+  <script>
+    const choices = document.getElementById('choices');
+    choices.insertAdjacentHTML('beforebegin', '<label for="voterName" style="display:block;margin:0 0 10px;font:700 12px Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase">Your name before voting</label><input id="voterName" type="text" required placeholder="Enter your name" style="width:100%;padding:12px;margin-bottom:16px;border:1px solid #cfbca4;border-radius:4px;font:15px Arial,sans-serif">');
+    choices.addEventListener('click', event => {
+      const button = event.target.closest('.choice');
+      if (!button) return;
+      const name = document.getElementById('voterName').value.trim();
+      if (!name) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        document.getElementById('voterName').focus();
+        document.getElementById('voteMessage').textContent = 'Please enter your name before voting.';
+      }
+    }, true);
+    choices.addEventListener('click', event => {
+      const button = event.target.closest('.choice');
+      const name = document.getElementById('voterName').value.trim();
+      if (button && name) document.getElementById('voteMessage').textContent = `Thank you, ${name}. Your vote for ${button.dataset.choice} has been counted.`;
+    });
+  </script>
+  <script>
+    const utti = document.querySelector('[data-choice="Kids\' Modak workshop"]');
+    if (utti) { utti.dataset.choice = 'Utti Kottadam'; utti.querySelector('span').textContent = 'Utti Kottadam'; }
+  </script>
+  <style>
+    #choices .choice:nth-child(2) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/utti,kottadam,festival'); }
+    #choices .choice:nth-child(3) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/traditional,indian,dance,festival'); }
+  </style>
+</body>
+</html>
