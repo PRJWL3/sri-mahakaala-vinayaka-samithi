@@ -233,9 +233,6 @@
           <h3>Verify OTP</h3>
           <p>Enter the 6-digit code sent to your mobile number.</p>
         </div>
-        <div class="help-box" style="margin-bottom:16px; background:#fffcf6; border-left:4px solid var(--marigold); padding:16px; border-radius:4px; font:14px/1.5 Arial,sans-serif; color:var(--muted);">
-          <span style="font-weight:bold; color:var(--saffron);">[Mock SMS]</span> Your verification code is: <strong id="mockOtpCode" style="font-size:16px; letter-spacing:1px; color:var(--ink);">------</strong>
-        </div>
         <form id="loginOtpForm">
           <label for="loginOtpInput">Enter 6-Digit OTP</label>
           <input type="text" id="loginOtpInput" required maxLength="6" placeholder="e.g. 123456" style="text-align:center; font-size:20px; letter-spacing:6px; font-family:monospace;">
@@ -511,29 +508,77 @@
       if (e.target === loginModal) closeLoginModal();
     });
 
-    document.getElementById('loginPhoneForm').addEventListener('submit', (e) => {
+    document.getElementById('loginPhoneForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const phone = document.getElementById('loginPhoneInput').value.trim();
       if (!phone) return;
 
-      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      document.getElementById('mockOtpCode').textContent = generatedOtp;
+      const submitBtn = e.target.querySelector('button');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending OTP...';
 
-      loginPhoneView.style.display = 'none';
-      loginOtpView.style.display = 'block';
+      const client = getSupabaseClient();
+      if (!client) {
+        alert('Supabase client is not configured.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send OTP';
+        return;
+      }
+
+      try {
+        const { error } = await client.auth.signInWithOtp({
+          phone: phone
+        });
+
+        if (error) throw error;
+
+        // Switch to OTP view
+        loginPhoneView.style.display = 'none';
+        loginOtpView.style.display = 'block';
+      } catch (err) {
+        alert('Failed to send OTP: ' + err.message + '\n\nNote: Phone OTP logins require Twilio credentials to be configured in your Supabase project under Authentication -> Providers -> Phone.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send OTP';
+      }
     });
 
-    document.getElementById('loginOtpForm').addEventListener('submit', (e) => {
+    document.getElementById('loginOtpForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const enteredOtp = document.getElementById('loginOtpInput').value.trim();
+      const phone = document.getElementById('loginPhoneInput').value.trim();
       
-      if (enteredOtp === generatedOtp) {
-        const phone = document.getElementById('loginPhoneInput').value.trim();
+      if (!enteredOtp || !phone) return;
+
+      const submitBtn = e.target.querySelector('button');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Verifying...';
+
+      const client = getSupabaseClient();
+      if (!client) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Verify & Login';
+        return;
+      }
+
+      try {
+        const { error } = await client.auth.verifyOtp({
+          phone: phone,
+          token: enteredOtp,
+          type: 'sms'
+        });
+
+        if (error) throw error;
+
+        // Save session locally and close
         localStorage.setItem('samithi_user_session', phone);
         closeLoginModal();
         checkLoginState();
-      } else {
-        alert('Invalid OTP. Please enter the code shown in the mock box.');
+      } catch (err) {
+        alert('Verification failed: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Verify & Login';
       }
     });
 
