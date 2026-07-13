@@ -127,14 +127,38 @@
     .toast-text p { margin: 0; font-size: 13px; color: var(--muted); font-family: Arial, sans-serif; line-height: 1.4; }
     .toast-close { background: transparent; border: 0; font-size: 20px; color: var(--muted); cursor: pointer; position: absolute; top: -4px; right: -4px; }
     @keyframes slideIn { 0% { transform: translateY(40px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+    /* Status Badges */
+    .status-badge.confirmed { background: rgba(26,110,56,0.1); color: var(--leaf); }
+    .status-badge.pending { background: rgba(112,66,58,0.1); color: var(--muted); }
   </style>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="topbar">Sri Mahakaala Vinayaka Samithi &nbsp;•&nbsp; Ganapati Bappa Morya</div>
-  <header><nav class="wrap"><a class="brand" href="#home"><img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Sri Mahakaala Vinayaka Samithi logo"><span>Sri Mahakaala Vinayaka<small>Samithi • Community Celebration</small></span></a><div class="navlinks"><a href="about.html">About</a><a href="#poll">Activities</a><a href="contact.html">Contact</a><a class="button" href="payment.html">Contribute</a></div></nav></header>
+  <header><nav class="wrap"><a class="brand" href="#home"><img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Sri Mahakaala Vinayaka Samithi logo"><span>Sri Mahakaala Vinayaka<small>Samithi • Community Celebration</small></span></a><div class="navlinks" id="navLinks"><a href="about.html">About</a><a href="#poll">Activities</a><a href="contact.html">Contact</a><a class="button" href="payment.html">Contribute</a><button class="button outline" id="loginNavBtn" style="padding:8px 14px; font-size:13px; height:38px;">Login</button></div></nav></header>
   <section class="hero" id="home"><div class="wrap hero-grid"><div><div class="eyebrow">Sri Mahakaala Vinayaka Samithi presents</div><h1>Celebrate with devotion, joy &amp; togetherness.</h1><p>Join Sri Mahakaala Vinayaka Samithi for our Vinayaka Chavithi celebrations. Your contribution helps us create a beautiful, inclusive festival for everyone.</p><div class="hero-actions"><a class="button" href="payment.html">Make a donation</a><a class="button outline" href="#poll">Choose an activity</a></div></div><div class="ganesha"><img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Sri Mahakaala Vinayaka Samithi - Lord Ganesha"></div></div></section>
+
+  <!-- My Contributions Section (Visible only when logged in) -->
+  <section id="myContributionsSection" class="wrap" style="display:none; margin-top:40px; margin-bottom:20px;">
+    <div class="panel" style="border-left: 5px solid var(--marigold); background: var(--white); padding: 24px; border-radius: 8px; border: 1px solid var(--line); border-left: 5px solid var(--marigold);">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:18px;">
+        <h2 style="margin:0; font-size:28px;">My Contributions</h2>
+        <button id="logoutBtn" class="button outline" style="padding: 8px 14px; font-size: 12px; height: 34px;">Logout</button>
+      </div>
+      <p style="font-family:Arial, sans-serif; font-size:14px; color:var(--muted); margin-bottom:20px;">
+        Showing contribution history for <strong id="userPhoneDisplay"></strong>.
+      </p>
+      <div id="contributionsList" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+        <!-- Populated dynamically -->
+      </div>
+      <div id="noContributionsMsg" style="display:none; text-align:center; padding:30px; font-style:italic; color:var(--muted); font-family:Arial, sans-serif;">
+        No contributions recorded for this phone number yet. Once confirmed by the committee, they will appear here.
+      </div>
+    </div>
+  </section>
+
   <main id="donations" class="wrap"><div class="section-head"><div><div class="eyebrow">Community contributions</div><h2>Donation leaderboard</h2></div><p class="section-note">Every offering, big or small, makes the celebration brighter. Thank you for supporting our pandal.</p></div>
     <div class="leaderboard"><section class="panel"><div class="board-title"><span>Top Contributors</span><span class="total" id="totalAmount">₹ 30,500 raised</span></div><div id="donorList"><div class="donor"><span class="rank">1</span><span class="person"><strong>Ramesh &amp; Family</strong><span>Grand Sponsor</span></span><span class="amount">₹ 10,000</span></div><div class="donor"><span class="rank">2</span><span class="person"><strong>Priya Nair</strong><span>Community Friend</span></span><span class="amount">₹ 7,500</span></div><div class="donor"><span class="rank">3</span><span class="person"><strong>Vikram Rao</strong><span>Community Friend</span></span><span class="amount">₹ 5,000</span></div><div class="donor"><span class="rank">4</span><span class="person"><strong>Meera &amp; Kiran</strong><span>Well-wisher</span></span><span class="amount">₹ 4,500</span></div><div class="donor"><span class="rank">5</span><span class="person"><strong>Ananya Sharma</strong><span>Well-wisher</span></span><span class="amount">₹ 3,500</span></div></div></section>
       <section class="panel"><div class="eyebrow">Sri Mahakaala Vinayaka Samithi</div><h3 style="font-size:27px;margin:9px 0 0">Be part of the celebration</h3><p class="form-intro">Contribute securely to the Sri Mahakaala Vinayaka Samithi celebration. Your donation will appear on the leaderboard once payment is confirmed.</p><a class="button" style="width:100%;margin-top:20px" href="payment.html">Continue to payment</a></section></div>
@@ -375,9 +399,156 @@
       }
     }
 
+    // Login and Contributions state
+    let currentUserPhone = localStorage.getItem('samithi_user_session');
+
+    const loginModal = document.getElementById('loginModal');
+    const loginPhoneView = document.getElementById('loginPhoneView');
+    const loginOtpView = document.getElementById('loginOtpView');
+    const myContributionsSection = document.getElementById('myContributionsSection');
+    const contributionsList = document.getElementById('contributionsList');
+    const noContributionsMsg = document.getElementById('noContributionsMsg');
+    const userPhoneDisplay = document.getElementById('userPhoneDisplay');
+    const loginNavBtn = document.getElementById('loginNavBtn');
+
+    let generatedOtp = '';
+
+    function checkLoginState() {
+      currentUserPhone = localStorage.getItem('samithi_user_session');
+      if (currentUserPhone) {
+        loginNavBtn.textContent = 'My Account';
+        userPhoneDisplay.textContent = currentUserPhone;
+        myContributionsSection.style.display = 'block';
+        fetchContributions();
+      } else {
+        loginNavBtn.textContent = 'Login';
+        myContributionsSection.style.display = 'none';
+      }
+    }
+
+    loginNavBtn.addEventListener('click', () => {
+      if (currentUserPhone) {
+        myContributionsSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        openLoginModal();
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+    function handleLogout() {
+      localStorage.removeItem('samithi_user_session');
+      checkLoginState();
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginPhoneForm').reset();
+      document.getElementById('loginOtpForm').reset();
+      loginPhoneView.style.display = 'block';
+      loginOtpView.style.display = 'none';
+      loginModal.classList.add('active');
+    }
+
+    function closeLoginModal() {
+      loginModal.classList.remove('active');
+    }
+
+    document.getElementById('closeLoginModalBtn').addEventListener('click', closeLoginModal);
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) closeLoginModal();
+    });
+
+    document.getElementById('loginPhoneForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('loginPhoneInput').value.trim();
+      if (!phone) return;
+
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      document.getElementById('mockOtpCode').textContent = generatedOtp;
+
+      loginPhoneView.style.display = 'none';
+      loginOtpView.style.display = 'block';
+    });
+
+    document.getElementById('loginOtpForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const enteredOtp = document.getElementById('loginOtpInput').value.trim();
+      
+      if (enteredOtp === generatedOtp) {
+        const phone = document.getElementById('loginPhoneInput').value.trim();
+        localStorage.setItem('samithi_user_session', phone);
+        closeLoginModal();
+        checkLoginState();
+      } else {
+        alert('Invalid OTP. Please enter the code shown in the mock box.');
+      }
+    });
+
+    async function fetchContributions() {
+      if (!currentUserPhone) return;
+
+      contributionsList.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; font-family:Arial, sans-serif; color:var(--muted);">Loading history...</div>';
+      noContributionsMsg.style.display = 'none';
+
+      const client = getSupabaseClient();
+      if (!client) {
+        contributionsList.innerHTML = '';
+        noContributionsMsg.innerHTML = 'Database configuration missing. Unable to fetch contributions.';
+        noContributionsMsg.style.display = 'block';
+        return;
+      }
+
+      try {
+        const { data, error } = await client
+          .from('contributions')
+          .select('*')
+          .eq('phone', currentUserPhone)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        contributionsList.innerHTML = '';
+
+        if (data.length === 0) {
+          noContributionsMsg.style.display = 'block';
+          return;
+        }
+
+        noContributionsMsg.style.display = 'none';
+        contributionsList.innerHTML = data.map(c => {
+          const dateStr = new Date(c.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          const statusClass = c.status === 'Confirmed' ? 'confirmed' : 'pending';
+          const formatAmount = '₹ ' + Number(c.amount).toLocaleString('en-IN');
+          
+          return `
+            <div style="background:#fffcf7; border:1px solid var(--line); border-radius:6px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 8px rgba(49,7,7,0.02);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                <div>
+                  <span style="font-size:12px; text-transform:uppercase; font-family:Arial, sans-serif; font-weight:bold; color:var(--muted);">${escapeHtml(c.type)}</span>
+                  <h4 style="margin:4px 0 0; font-size:22px; color:var(--saffron);">${formatAmount}</h4>
+                </div>
+                <span class="status-badge ${statusClass}" style="font-family:Arial, sans-serif; font-size:11px; font-weight:bold; padding:4px 8px; border-radius:3px; text-transform:uppercase;">${escapeHtml(c.status)}</span>
+              </div>
+              <div style="font-family:Arial, sans-serif; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f2e7d5; padding-top:10px;">
+                <span>For: <strong>${escapeHtml(c.name)}</strong></span>
+                <span>${dateStr}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Failed to load contributions: ", err.message);
+        contributionsList.innerHTML = '';
+        noContributionsMsg.innerHTML = 'Failed to load history: ' + err.message;
+        noContributionsMsg.style.display = 'block';
+      }
+    }
+
     // Initial load
     renderCommittee();
     checkLocalPendingStatus();
+    checkLoginState();
   </script>
   <script>
     const choices = document.getElementById('choices');
@@ -407,6 +578,42 @@
     #choices .choice:nth-child(2) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/utti,kottadam,festival'); }
     #choices .choice:nth-child(3) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/traditional,indian,dance,festival'); }
   </style>
+
+  <!-- Phone OTP Login Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" id="closeLoginModalBtn" aria-label="Close modal">&times;</button>
+      
+      <!-- View 1: Request OTP -->
+      <div id="loginPhoneView">
+        <div class="modal-header">
+          <h3>Member Login</h3>
+          <p>Enter your phone number to check your contributions and status.</p>
+        </div>
+        <form id="loginPhoneForm">
+          <label for="loginPhoneInput">Phone Number</label>
+          <input type="tel" id="loginPhoneInput" required placeholder="e.g. +91 9876543210">
+          <button type="submit" class="button" style="width:100%; margin-top:20px;">Send OTP</button>
+        </form>
+      </div>
+
+      <!-- View 2: Verify OTP -->
+      <div id="loginOtpView" style="display:none;">
+        <div class="modal-header">
+          <h3>Verify OTP</h3>
+          <p>Enter the 6-digit code sent to your mobile number.</p>
+        </div>
+        <div class="help-box" style="margin-bottom:16px; background:#fffcf6; border-left:4px solid var(--marigold); padding:16px; border-radius:4px; font:14px/1.5 Arial,sans-serif; color:var(--muted);">
+          <span style="font-weight:bold; color:var(--saffron);">[Mock SMS]</span> Your verification code is: <strong id="mockOtpCode" style="font-size:16px; letter-spacing:1px; color:var(--ink);">------</strong>
+        </div>
+        <form id="loginOtpForm">
+          <label for="loginOtpInput">Enter 6-Digit OTP</label>
+          <input type="text" id="loginOtpInput" required maxLength="6" placeholder="e.g. 123456" style="text-align:center; font-size:20px; letter-spacing:6px; font-family:monospace;">
+          <button type="submit" class="button" style="width:100%; margin-top:20px;">Verify & Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Notification Toast -->
   <div id="statusToast" class="status-toast" style="display:none;">
