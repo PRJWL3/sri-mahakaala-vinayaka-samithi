@@ -131,6 +131,13 @@
     /* Status Badges */
     .status-badge.confirmed { background: rgba(26,110,56,0.1); color: var(--leaf); }
     .status-badge.pending { background: rgba(112,66,58,0.1); color: var(--muted); }
+
+    /* Poll Progress Bar Styles */
+    .choice { position: relative; overflow: hidden; display: flex !important; justify-content: space-between; align-items: flex-end; width: 100%; border: 0; border-radius: 6px; }
+    .choice-progress { position: absolute; top: 0; left: 0; bottom: 0; background: rgba(220,166,33,0.25); transition: width 1s cubic-bezier(0.1, 0.8, 0.3, 1); z-index: 0; }
+    .choice span { position: relative; z-index: 1; }
+    .vote-percent { position: relative; z-index: 1; font-weight: bold; color: #ffd365; font-family: Arial, sans-serif; font-size: 18px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+    .choices-disabled .choice { cursor: default; pointer-events: none; }
   </style>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -266,7 +273,6 @@
     ];
     const format = n => '₹ ' + n.toLocaleString('en-IN');
     function renderDonors() { donors.sort((a,b)=>b.amount-a.amount); document.getElementById('donorList').innerHTML = donors.slice(0,5).map((d,i)=>`<div class="donor"><span class="rank">${i+1}</span><span class="person"><strong>${d.name.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</strong><span>${d.label}</span></span><span class="amount">${format(d.amount)}</span></div>`).join(''); document.getElementById('totalAmount').textContent = format(donors.reduce((sum,d)=>sum+d.amount,0))+' raised'; }
-    document.querySelectorAll('.choice').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected')); button.classList.add('selected'); const count = button.querySelector('.vote-count'); count.textContent = (Number(count.textContent.match(/\d+/)[0])+1)+' votes'; document.getElementById('voteMessage').textContent = `Your vote for ${button.dataset.choice} has been counted. Thank you!`; }));
   </script>
   <script>
     const auctionSection = document.getElementById('donations');
@@ -605,21 +611,56 @@
   <script>
     const choices = document.getElementById('choices');
     choices.insertAdjacentHTML('beforebegin', '<label for="voterName" style="display:block;margin:0 0 10px;font:700 12px Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase">Your name before voting</label><input id="voterName" type="text" required placeholder="Enter your name" style="width:100%;padding:12px;margin-bottom:16px;border:1px solid #cfbca4;border-radius:4px;font:15px Arial,sans-serif">');
+    
+    let hasVoted = false;
+
     choices.addEventListener('click', event => {
       const button = event.target.closest('.choice');
-      if (!button) return;
+      if (!button || hasVoted) return;
+
       const name = document.getElementById('voterName').value.trim();
       if (!name) {
         event.stopImmediatePropagation();
         event.preventDefault();
         document.getElementById('voterName').focus();
         document.getElementById('voteMessage').textContent = 'Please enter your name before voting.';
+        return;
       }
-    }, true);
-    choices.addEventListener('click', event => {
-      const button = event.target.closest('.choice');
-      const name = document.getElementById('voterName').value.trim();
-      if (button && name) document.getElementById('voteMessage').textContent = `Thank you, ${name}. Your vote for ${button.dataset.choice} has been counted.`;
+
+      hasVoted = true;
+      choices.classList.add('choices-disabled');
+
+      button.classList.add('selected');
+
+      const clickedCountSpan = button.querySelector('.vote-count');
+      const currentCount = Number(clickedCountSpan.textContent.match(/\d+/)[0]);
+      clickedCountSpan.textContent = (currentCount + 1) + ' votes';
+
+      const allButtons = document.querySelectorAll('.choice');
+      const voteData = [];
+      let totalVotes = 0;
+
+      allButtons.forEach(btn => {
+        const countSpan = btn.querySelector('.vote-count');
+        const count = Number(countSpan.textContent.match(/\d+/)[0]);
+        voteData.push({ btn, count });
+        totalVotes += count;
+      });
+
+      voteData.forEach(item => {
+        const percent = totalVotes > 0 ? Math.round((item.count / totalVotes) * 100) : 0;
+        
+        item.btn.insertAdjacentHTML('afterbegin', `<div class="choice-progress" style="width: 0%;"></div>`);
+        
+        setTimeout(() => {
+          const progress = item.btn.querySelector('.choice-progress');
+          if (progress) progress.style.width = percent + '%';
+        }, 50);
+
+        item.btn.insertAdjacentHTML('beforeend', `<span class="vote-percent">${percent}%</span>`);
+      });
+
+      document.getElementById('voteMessage').textContent = `Thank you, ${name}! Your vote for "${button.dataset.choice}" has been counted.`;
     });
   </script>
   <script>
