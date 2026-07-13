@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard | Sri Mahakaala Vinayaka Samithi</title>
+  <style>
+    :root { --ink:#310707; --muted:#70423a; --cream:#fff4df; --saffron:#b70d14; --marigold:#dca621; --leaf:#1a6e38; --rose:#9e070c; --line:#e7c99c; --white:#fffaf1; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Georgia, serif; color:var(--ink); background:linear-gradient(135deg, #fff4df, #ffe0a4); min-height:100vh; display:flex; flex-direction:column; }
+    .topbar { background:var(--saffron); color:#fff6e4; text-align:center; padding:9px 16px; font:600 13px Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+    .wrap { max-width:1120px; margin:0 auto; padding:0 24px; width:100%; }
+    header { background:var(--white); border-bottom:1px solid var(--line); padding:15px 0; }
+    .brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); font-weight:bold; font-size:20px; }
+    .brand img { width:42px; height:42px; object-fit:cover; border-radius:50%; border:2px solid var(--marigold); }
+    .brand small { display:block; color:var(--saffron); font:700 10px Arial,sans-serif; letter-spacing:.18em; text-transform:uppercase; margin-top:2px; }
+    
+    main { flex:1; padding:40px 0; }
+    .card { background:var(--white); border:1px solid var(--line); border-radius:8px; padding:32px; box-shadow:0 10px 30px rgba(49,7,7,0.08); margin-bottom:24px; }
+    .card h2 { font-size:26px; margin:0 0 16px; border-bottom:1px solid var(--line); padding-bottom:10px; }
+    
+    label { display:block; font:700 12px Arial,sans-serif; letter-spacing:.05em; text-transform:uppercase; margin:14px 0 6px; }
+    input { width:100%; border:1px solid #cfbca4; background:#fffefa; padding:12px; border-radius:4px; font:15px Arial,sans-serif; color:var(--ink); margin-bottom:8px; }
+    input:focus { outline:3px solid rgba(244,184,36,.35); border-color:var(--saffron); }
+    
+    .button { display:inline-flex; align-items:center; justify-content:center; border:0; cursor:pointer; padding:12px 20px; background:var(--saffron); color:white; text-decoration:none; font:700 13px Arial,sans-serif; letter-spacing:.04em; border-radius:4px; box-shadow:0 3px 0 #ae4e0d; transition:all 0.2s ease; }
+    .button:hover { transform:translateY(-1px); background:#d96616; }
+    .button.outline { background:transparent; color:var(--ink); border:1px solid var(--ink); box-shadow:none; }
+    .button.outline:hover { background:#fff2d5; }
+    .button.danger { background:var(--rose); box-shadow:0 3px 0 #730508; }
+    .button.danger:hover { background:#b81419; }
+    .button.success { background:var(--leaf); box-shadow:0 3px 0 #104824; }
+    .button.success:hover { background:#208444; }
+
+    /* Admin Panel Grid */
+    .dashboard-grid { display:grid; grid-template-columns:1fr; gap:24px; }
+    @media(min-width: 900px) {
+      .dashboard-grid { grid-template-columns:1.2fr 0.8fr; }
+    }
+    
+    .stats-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px; }
+    .stat-card { background:var(--white); border:1px solid var(--line); border-radius:6px; padding:20px; text-align:center; box-shadow:0 4px 12px rgba(49,7,7,0.03); }
+    .stat-card h3 { margin:0; font:700 12px Arial,sans-serif; text-transform:uppercase; color:var(--muted); letter-spacing:0.08em; }
+    .stat-card p { margin:8px 0 0; font-size:36px; font-weight:bold; color:var(--saffron); }
+
+    /* Tables */
+    table { width:100%; border-collapse:collapse; text-align:left; font-family:Arial, sans-serif; font-size:14px; margin-top:10px; }
+    th { background:#fff0c7; color:var(--ink); font-weight:700; padding:12px; border-bottom:2px solid var(--line); }
+    td { padding:12px; border-bottom:1px solid #f0e5d3; vertical-align:middle; }
+    tr:hover td { background:rgba(255,244,223,0.3); }
+    
+    /* Overlay Spinner */
+    .overlay-spinner { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(49,7,7,0.6); backdrop-filter:blur(4px); display:none; place-items:center; z-index:2000; color:white; text-align:center; }
+    .spinner { border: 4px solid rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: white; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .help-box { background:#fffcf6; border-left:4px solid var(--marigold); padding:16px; border-radius:4px; font:14px/1.5 Arial,sans-serif; margin-bottom:24px; color:var(--muted); }
+    .help-box a { color:var(--saffron); font-weight:bold; }
+  </style>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="topbar">Sri Mahakaala Vinayaka Samithi &nbsp;•&nbsp; Committee Dashboard</div>
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">
+        <img src="sri-mahakaala-vinayaka-samithi-logo.png" alt="Logo">
+        <span>Sri Mahakaala Vinayaka<small>Samithi • Administrative Portal</small></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Setup Screen (shown if credentials missing) -->
+    <section id="setupView" class="card" style="display:none; max-width:600px; margin: 0 auto;">
+      <h2>Dashboard Configuration</h2>
+      <p style="font-family:Arial; font-size:14px; line-height:1.5; color:var(--muted);">
+        Enter your credentials to manage join requests. These details are saved only in your local browser's storage and never sent anywhere else.
+      </p>
+      <form id="setupForm">
+        <label for="setupGhToken">GitHub Personal Access Token</label>
+        <input type="password" id="setupGhToken" required placeholder="ghp_xxxxxxxxxxxx">
+        <p class="token-help" style="font-family:Arial; font-size:11px; margin:-4px 0 12px; color:var(--muted);">
+          Needs **Contents: Read & Write** permissions for the `sri-mahakaala-vinayaka-samithi` repository.
+          Create a token at <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--saffron); font-weight:bold;">GitHub Settings</a>.
+        </p>
+
+        <label for="setupSupaUrl">Supabase API URL</label>
+        <input type="text" id="setupSupaUrl" required placeholder="https://xxxxxxxxxxxxxx.supabase.co">
+
+        <label for="setupSupaKey">Supabase Public Anon Key</label>
+        <input type="password" id="setupSupaKey" required placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+
+        <button type="submit" class="button" style="width:100%; margin-top:20px;">Save Configuration</button>
+      </form>
+    </section>
+
+    <!-- Main Dashboard View -->
+    <section id="dashboardView" style="display:none;">
+      <div class="stats-bar">
+        <div class="stat-card">
+          <h3>Pending Requests</h3>
+          <p id="statPendingCount">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Members</h3>
+          <p id="statActiveCount">0</p>
+        </div>
+        <div class="stat-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+          <button id="logoutBtn" class="button outline" style="width:90%; padding:8px 12px; font-size:12px;">Reset Credentials</button>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Column 1: Pending Join Requests -->
+        <div class="card">
+          <h2>Pending Join Requests</h2>
+          <div id="pendingTableContainer">
+            <table id="pendingTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Contact Info</th>
+                  <th>Submitted At</th>
+                  <th style="width: 200px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pendingList">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+            <div id="noRequestsMsg" style="display:none; text-align:center; padding:30px; font-style:italic; color:var(--muted);">
+              No pending join requests found in Supabase database.
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Active Members -->
+        <div class="card">
+          <h2>Active Members List</h2>
+          <p style="font-family:Arial; font-size:12px; color:var(--muted); margin-top:-10px;">
+            This list is loaded directly from your GitHub repository code.
+          </p>
+          <div style="overflow-x:auto;">
+            <table id="activeTable">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Member Name</th>
+                </tr>
+              </thead>
+              <tbody id="activeList">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Overlay Spinner for loading API operations -->
+  <div id="loadingOverlay" class="overlay-spinner">
+    <div>
+      <div class="spinner"></div>
+      <h3 id="overlayText">Loading...</h3>
+      <p id="overlaySubtext" style="opacity:0.8; font-size:14px; margin-top:8px;">Communicating with API endpoints...</p>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    let supabaseClient = null;
+    let gitHubToken = '';
+    let currentMembers = [];
+    let fileSha = '';
+    let repoContentRaw = '';
+
+    const repoOwner = 'PRJWL3';
+    const repoName = 'sri-mahakaala-vinayaka-samithi';
+    const filePath = 'index.html';
+
+    // UI elements
+    const setupView = document.getElementById('setupView');
+    const dashboardView = document.getElementById('dashboardView');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const overlayText = document.getElementById('overlayText');
+    const overlaySubtext = document.getElementById('overlaySubtext');
+
+    // Init page state
+    function init() {
+      const storedToken = localStorage.getItem('samithi_gh_token');
+      const storedSupaUrl = localStorage.getItem('samithi_supabase_url');
+      const storedSupaKey = localStorage.getItem('samithi_supabase_key');
+
+      if (storedToken && storedSupaUrl && storedSupaKey) {
+        gitHubToken = storedToken;
+        supabaseClient = supabase.createClient(storedSupaUrl, storedSupaKey);
+        setupView.style.display = 'none';
+        dashboardView.style.display = 'block';
+        loadDashboardData();
+      } else {
+        setupView.style.display = 'block';
+        dashboardView.style.display = 'none';
+      }
+    }
+
+    // Setup Form submission handler
+    document.getElementById('setupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const token = document.getElementById('setupGhToken').value.trim();
+      const supaUrl = document.getElementById('setupSupaUrl').value.trim();
+      const supaKey = document.getElementById('setupSupaKey').value.trim();
+
+      if (token && supaUrl && supaKey) {
+        localStorage.setItem('samithi_gh_token', token);
+        localStorage.setItem('samithi_supabase_url', supaUrl);
+        localStorage.setItem('samithi_supabase_key', supaKey);
+        init();
+      }
+    });
+
+    // Reset settings / Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      if (confirm('Clear stored credentials? You will need to re-enter them.')) {
+        localStorage.removeItem('samithi_gh_token');
+        localStorage.removeItem('samithi_supabase_url');
+        localStorage.removeItem('samithi_supabase_key');
+        init();
+      }
+    });
+
+    // Display loading state
+    function showLoading(text, subtext = '') {
+      overlayText.textContent = text;
+      overlaySubtext.textContent = subtext;
+      loadingOverlay.style.display = 'grid';
+    }
+
+    function hideLoading() {
+      loadingOverlay.style.display = 'none';
+    }
+
+    // Fetch details from Supabase & GitHub
+    async function loadDashboardData() {
+      showLoading('Fetching Dashboard Data', 'Syncing with Supabase and GitHub...');
+      try {
+        await Promise.all([
+          fetchActiveMembers(),
+          fetchPendingRequests()
+        ]);
+      } catch (err) {
+        alert('Data Loading Error: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Fetch members list directly from index.html code on Github repo
+    async function fetchActiveMembers() {
+      const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `token ${gitHubToken}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('samithi_gh_token');
+          init();
+          throw new Error('Unauthorized GitHub Token. Stored credentials have been reset.');
+        }
+        throw new Error('Failed to fetch file from GitHub: ' + response.statusText);
+      }
+
+      const fileData = await response.json();
+      fileSha = fileData.sha;
+      repoContentRaw = decodeURIComponent(escape(atob(fileData.content)));
+
+      // Parse array
+      const defaultMembersRegex = /(const defaultMembers\s*=\s*\[)([^\]]+)(\];)/;
+      const match = repoContentRaw.match(defaultMembersRegex);
+      
+      if (!match) {
+        throw new Error("Could not parse 'defaultMembers' list from index.html codebase.");
+      }
+
+      currentMembers = match[2].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+      document.getElementById('statActiveCount').textContent = currentMembers.length;
+      
+      // Render active members table
+      const listElement = document.getElementById('activeList');
+      listElement.innerHTML = currentMembers.map((m, i) => `
+        <tr>
+          <td style="font-weight:bold; color:var(--muted);">${i+1}</td>
+          <td style="font-weight:bold;">${escapeHtml(m)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Fetch pending requests from Supabase DB table
+    async function fetchPendingRequests() {
+      if (!supabaseClient) return;
+
+      const { data, error } = await supabaseClient
+        .from('join_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error('Supabase database error: ' + error.message);
+      }
+
+      document.getElementById('statPendingCount').textContent = data.length;
+
+      const listElement = document.getElementById('pendingList');
+      const noRequestsMsg = document.getElementById('noRequestsMsg');
+      const pendingTable = document.getElementById('pendingTable');
+
+      if (data.length === 0) {
+        listElement.innerHTML = '';
+        noRequestsMsg.style.display = 'block';
+        pendingTable.style.display = 'none';
+        return;
+      }
+
+      noRequestsMsg.style.display = 'none';
+      pendingTable.style.display = 'table';
+
+      listElement.innerHTML = data.map(req => {
+        const timeStr = new Date(req.created_at).toLocaleString();
+        return `
+          <tr>
+            <td style="font-weight:bold; font-size:15px;">${escapeHtml(req.name)}</td>
+            <td>${req.phone ? `<a href="tel:${req.phone}" style="color:var(--ink); text-decoration:none; font-family:monospace;">${escapeHtml(req.phone)}</a>` : '<span style="color:var(--muted); font-style:italic;">None provided</span>'}</td>
+            <td style="color:var(--muted); font-size:12px;">${timeStr}</td>
+            <td>
+              <div style="display:flex; gap:8px;">
+                <button onclick="approveRequest('${escapeHtml(req.name)}', ${req.id})" class="button success" style="padding:6px 12px; font-size:12px;">Approve</button>
+                <button onclick="denyRequest(${req.id})" class="button danger outline" style="padding:6px 12px; font-size:12px;">Deny</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Approve handler: commit to Git and delete row in Supabase DB
+    async function approveRequest(name, id) {
+      if (!confirm(`Are you sure you want to approve "${name}" and add them to the committee?`)) return;
+
+      showLoading('Committing Approval', `Adding ${name} to index.html on GitHub...`);
+      try {
+        if (currentMembers.includes(name)) {
+          throw new Error('Member name already exists in the active committee list.');
+        }
+
+        // Add member and generate new code
+        const updatedMembers = [...currentMembers, name];
+        const newArrayStr = updatedMembers.map(m => `'${m}'`).join(', ');
+        const defaultMembersRegex = /(const defaultMembers\s*=\s*\[)([^\]]+)(\];)/;
+        const updatedContent = repoContentRaw.replace(defaultMembersRegex, `$1${newArrayStr}$3`);
+        const base64Content = btoa(unescape(encodeURIComponent(updatedContent)));
+
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+        // 1. Save updated file to GitHub
+        const gitResponse = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${gitHubToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Approve ${name} as a committee member`,
+            content: base64Content,
+            sha: fileSha
+          })
+        });
+
+        if (!gitResponse.ok) {
+          const errData = await gitResponse.json();
+          throw new Error('GitHub push failed: ' + (errData.message || gitResponse.statusText));
+        }
+
+        showLoading('Deleting Database Request', 'Cleaning up Supabase record...');
+
+        // 2. Delete request row from Supabase
+        const { error: deleteError } = await supabaseClient
+          .from('join_requests')
+          .delete()
+          .eq('id', id);
+
+        if (deleteError) {
+          throw new Error('GitHub succeeded but database deletion failed: ' + deleteError.message);
+        }
+
+        alert(`Successfully approved and added ${name}! The website will rebuild in 1-2 minutes.`);
+        await loadDashboardData();
+
+      } catch (err) {
+        alert('Approval failed: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Deny request handler: delete row from Supabase
+    async function denyRequest(id) {
+      if (!confirm('Are you sure you want to deny (delete) this request?')) return;
+
+      showLoading('Denying Request', 'Deleting record from Supabase database...');
+      try {
+        const { error } = await supabaseClient
+          .from('join_requests')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        
+        await loadDashboardData();
+      } catch (err) {
+        alert('Failed to delete request: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Helper utilities
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+    }
+
+    // Initialize state
+    init();
+  </script>
+</body>
+</html>
