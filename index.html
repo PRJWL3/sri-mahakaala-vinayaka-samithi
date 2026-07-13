@@ -114,6 +114,19 @@
     @keyframes stroke { 100% { stroke-dashoffset: 0; } }
     @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
     @keyframes fill__success { 100% { box-shadow: inset 0px 0px 0px 40px #25D366; } }
+
+    /* Token Input and Loading Spinner */
+    .token-input-group { margin-top: 18px; text-align: left; }
+    .token-input-group label { margin-bottom: 5px; display: block; font: 700 12px Arial, sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+    .token-input-group input { width: 100%; padding: 12px; border: 1px solid #cfbca4; background: #fffefa; border-radius: 4px; font-family: monospace; font-size: 13px; }
+    .token-help { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; font-family: Arial, sans-serif; }
+    .token-help a { color: var(--saffron); text-decoration: underline; font-weight: bold; }
+    .spinner { border: 4px solid rgba(183,13,20,0.1); width: 42px; height: 42px; border-radius: 50%; border-left-color: var(--saffron); animation: spin 1s linear infinite; margin: 24px auto 12px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Pending Badge Styles */
+    .committee-list span.pending { border-left: 4px solid var(--marigold); opacity: 0.85; }
+    .new-member-badge.pending { background: var(--muted); color: var(--white); }
   </style>
 </head>
 <body>
@@ -163,12 +176,72 @@
             <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#25D366" stroke-width="3" stroke-linecap="round"/>
           </svg>
         </div>
-        <h4>Welcome to the Samithi!</h4>
-        <p>Your name has been added to the Committee list.</p>
+        <h4>Request Submitted!</h4>
+        <p>Your request is pending approval. Please click the button below to send the approval link to the committee organizers on WhatsApp.</p>
         <a id="whatsappConfirmBtn" href="#" target="_blank" class="button whatsapp-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-top:-2px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Confirm on WhatsApp
+          Send Request via WhatsApp
         </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner Approval Modal -->
+  <div id="approveModal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" id="closeApproveModalBtn" aria-label="Close modal">&times;</button>
+      
+      <!-- View 1: Confirm Approval -->
+      <div id="approvePromptView">
+        <div class="modal-header">
+          <h3>Review Join Request</h3>
+          <p>An applicant wants to join the Sri Mahakaala Vinayaka Samithi committee.</p>
+        </div>
+        <p style="font-size:18px; margin:20px 0; background:#fffefa; padding:15px; border-left:4px solid var(--marigold); border-radius:4px;">
+          Applicant Name: <strong id="approveTargetName">John Doe</strong>
+        </p>
+        
+        <!-- GitHub Token Input (shown if not set in localStorage) -->
+        <div id="tokenInputSection" class="token-input-group" style="display:none;">
+          <label for="ghTokenInput">GitHub Personal Access Token</label>
+          <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+          <p class="token-help">
+            This token is required to commit the approved name directly to your GitHub repository. 
+            Create a token with **Contents: Read & Write** permissions at 
+            <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a>. 
+            It is stored locally on your browser.
+          </p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:24px;">
+          <button id="confirmApproveBtn" class="button">Approve & Publish</button>
+          <button id="denyApproveBtn" class="button outline">Deny Request</button>
+        </div>
+      </div>
+
+      <!-- View 2: Processing Status -->
+      <div id="approveLoadingView" style="display:none; text-align:center; padding:20px 0;">
+        <div class="spinner"></div>
+        <h4 id="approveStatusTitle">Processing Approval...</h4>
+        <p id="approveStatusText" style="color:var(--muted); font-size:14px; margin-top:8px;">
+          Updating repository on GitHub. Please do not close this window.
+        </p>
+      </div>
+
+      <!-- View 3: Success Status -->
+      <div id="approveSuccessView" style="display:none; text-align:center; padding:20px 0;">
+        <div class="checkmark-circle">
+          <div class="background"></div>
+          <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" stroke="#25D366" stroke-width="2"/>
+            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#25D366" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h4 style="color:var(--leaf); font-size:22px; margin:16px 0 8px;">Successfully Approved!</h4>
+        <p style="color:var(--muted); font-size:15px; line-height:1.5; margin-bottom:20px;">
+          The change has been committed to GitHub. The site will rebuild and update for everyone in 1-2 minutes.
+        </p>
+        <button id="finishApproveBtn" class="button" style="width:100%;">Done</button>
       </div>
     </div>
   </div>
@@ -198,16 +271,16 @@
     // Committee Management
     const defaultMembers = ['P Harish', 'K Pranav Nani', 'K Prajwal', 'AD Vikram', 'Jithendra', 'ThulasiNath', 'S Varun Kumar', 'C Abhilash', 'D Abhilash', 'Nithun Kumar', 'Rahul', 'Saravana'];
     
-    function getNewMembers() {
-      const stored = localStorage.getItem('samithi_new_members');
+    function getPendingMembers() {
+      const stored = localStorage.getItem('samithi_pending_members');
       return stored ? JSON.parse(stored) : [];
     }
 
-    function saveNewMember(name) {
-      const members = getNewMembers();
-      if (!members.includes(name)) {
+    function savePendingMember(name) {
+      const members = getPendingMembers();
+      if (!members.includes(name) && !defaultMembers.includes(name)) {
         members.push(name);
-        localStorage.setItem('samithi_new_members', JSON.stringify(members));
+        localStorage.setItem('samithi_pending_members', JSON.stringify(members));
       }
     }
 
@@ -215,10 +288,12 @@
       const container = document.getElementById('committeeList');
       if (!container) return;
       
-      const newMembers = getNewMembers();
+      // Clean up local pending members list once they are officially approved and present in defaultMembers
+      const pendingMembers = getPendingMembers().filter(m => !defaultMembers.includes(m));
+      localStorage.setItem('samithi_pending_members', JSON.stringify(pendingMembers));
       
       let html = defaultMembers.map(m => `<span>${m}</span>`).join('');
-      html += newMembers.map(m => `<span class="new-member">${m} <span class="new-member-badge">New</span></span>`).join('');
+      html += pendingMembers.map(m => `<span class="new-member pending">${m} <span class="new-member-badge pending">Pending</span></span>`).join('');
       
       html += `<button id="joinBtn" class="join-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -229,7 +304,7 @@
       document.getElementById('joinBtn').addEventListener('click', openJoinModal);
     }
 
-    // Modal Control
+    // Join Modal Control
     const modal = document.getElementById('joinModal');
     const formContainer = document.getElementById('modalFormContainer');
     const successMsg = document.getElementById('joinSuccess');
@@ -257,19 +332,170 @@
       
       if (!name) return;
       
-      saveNewMember(name);
+      savePendingMember(name);
       renderCommittee();
       
       const cleanedPhone = phone ? ` (Contact: ${phone})` : '';
-      const textMessage = encodeURIComponent(`Hi Harish, I would like to join the Sri Mahakaala Vinayaka Samithi committee! My name is ${name}${cleanedPhone}.`);
+      const approvalUrl = window.location.origin + window.location.pathname + '?approve=' + encodeURIComponent(name);
+      const textMessage = encodeURIComponent(`Hi Harish, I would like to join the Sri Mahakaala Vinayaka Samithi committee! My name is ${name}${cleanedPhone}. Please click here to review and approve my request: ${approvalUrl}`);
+      
       document.getElementById('whatsappConfirmBtn').href = `https://wa.me/917396889915?text=${textMessage}`;
       
       formContainer.style.display = 'none';
       successMsg.style.display = 'block';
     });
 
+    // Check if the URL has an 'approve' parameter
+    function checkApprovals() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const approveName = urlParams.get('approve');
+      if (approveName) {
+        openApproveModal(approveName);
+      }
+    }
+
+    // Approve Modal Controls
+    const approveModal = document.getElementById('approveModal');
+    const approvePromptView = document.getElementById('approvePromptView');
+    const approveLoadingView = document.getElementById('approveLoadingView');
+    const approveSuccessView = document.getElementById('approveSuccessView');
+    const tokenInputSection = document.getElementById('tokenInputSection');
+    let currentApproveTarget = '';
+
+    function openApproveModal(name) {
+      currentApproveTarget = name;
+      document.getElementById('approveTargetName').textContent = name;
+      
+      // Reset views
+      approvePromptView.style.display = 'block';
+      approveLoadingView.style.display = 'none';
+      approveSuccessView.style.display = 'none';
+      
+      // Check for token
+      const storedToken = localStorage.getItem('samithi_gh_token');
+      if (!storedToken) {
+        tokenInputSection.style.display = 'block';
+        document.getElementById('ghTokenInput').value = '';
+      } else {
+        tokenInputSection.style.display = 'none';
+      }
+      
+      approveModal.classList.add('active');
+    }
+
+    function closeApproveModal() {
+      approveModal.classList.remove('active');
+      const url = new URL(window.location);
+      url.searchParams.delete('approve');
+      window.history.replaceState({}, document.title, url);
+    }
+
+    document.getElementById('closeApproveModalBtn').addEventListener('click', closeApproveModal);
+    document.getElementById('denyApproveBtn').addEventListener('click', () => {
+      alert('Join request denied.');
+      closeApproveModal();
+    });
+    document.getElementById('finishApproveBtn').addEventListener('click', () => {
+      closeApproveModal();
+      window.location.reload();
+    });
+
+    document.getElementById('confirmApproveBtn').addEventListener('click', async () => {
+      let token = localStorage.getItem('samithi_gh_token');
+      if (!token) {
+        token = document.getElementById('ghTokenInput').value.trim();
+        if (!token) {
+          alert('Please enter your GitHub Access Token to proceed.');
+          return;
+        }
+        localStorage.setItem('samithi_gh_token', token);
+      }
+
+      approvePromptView.style.display = 'none';
+      approveLoadingView.style.display = 'block';
+      document.getElementById('approveStatusTitle').textContent = 'Processing Approval...';
+      document.getElementById('approveStatusText').textContent = 'Fetching file from GitHub...';
+
+      try {
+        const repoOwner = 'PRJWL3';
+        const repoName = 'sri-mahakaala-vinayaka-samithi';
+        const filePath = 'index.html';
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+        const getResponse = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!getResponse.ok) {
+          throw new Error(`Failed to fetch file: ${getResponse.statusText} (Is your token correct?)`);
+        }
+
+        const fileData = await getResponse.json();
+        const fileSha = fileData.sha;
+        const rawContent = decodeURIComponent(escape(atob(fileData.content)));
+
+        document.getElementById('approveStatusText').textContent = 'Modifying file contents...';
+
+        const defaultMembersRegex = /(const defaultMembers\s*=\s*\[)([^\]]+)(\];)/;
+        const match = rawContent.match(defaultMembersRegex);
+        
+        if (!match) {
+          throw new Error("Could not locate the list of committee members in the source file.");
+        }
+
+        const arrayStr = match[2];
+        const currentMembers = arrayStr.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+
+        if (currentMembers.includes(currentApproveTarget)) {
+          throw new Error(`${currentApproveTarget} is already a committee member!`);
+        }
+
+        currentMembers.push(currentApproveTarget);
+        const newArrayStr = currentMembers.map(m => `'${m}'`).join(', ');
+        const updatedContent = rawContent.replace(defaultMembersRegex, `$1${newArrayStr}$3`);
+        const base64Content = btoa(unescape(encodeURIComponent(updatedContent)));
+
+        document.getElementById('approveStatusText').textContent = 'Committing changes to GitHub...';
+
+        const putResponse = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Approve ${currentApproveTarget} as a committee member`,
+            content: base64Content,
+            sha: fileSha
+          })
+        });
+
+        if (!putResponse.ok) {
+          const errData = await putResponse.json();
+          throw new Error(`Commit failed: ${errData.message || putResponse.statusText}`);
+        }
+
+        approveLoadingView.style.display = 'none';
+        approveSuccessView.style.display = 'block';
+
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+        approveLoadingView.style.display = 'none';
+        approvePromptView.style.display = 'block';
+        if (err.message.includes('Unauthorized') || err.message.includes('401') || err.message.includes('token')) {
+          localStorage.removeItem('samithi_gh_token');
+          tokenInputSection.style.display = 'block';
+        }
+      }
+    });
+
     // Initial load
     renderCommittee();
+    checkApprovals();
   </script>
   <script>
     const choices = document.getElementById('choices');
