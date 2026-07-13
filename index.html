@@ -116,6 +116,17 @@
     /* Pending Badge Styles */
     .committee-list span.pending { border-left: 4px solid var(--marigold); opacity: 0.85; }
     .new-member-badge.pending { background: var(--muted); color: var(--white); }
+
+    /* Toast Notification */
+    .status-toast { position: fixed; bottom: 24px; right: 24px; background: var(--white); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 25px rgba(49,7,7,0.15); padding: 16px 20px; z-index: 5000; width: min(380px, calc(100% - 48px)); display: flex; animation: slideIn 0.3s ease forwards; }
+    .toast-content { display: flex; align-items: flex-start; gap: 14px; width: 100%; position: relative; }
+    .toast-icon { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; margin-top: 2px; font-weight: bold; }
+    .toast-icon.approved { background: rgba(26,110,56,0.1); color: var(--leaf); }
+    .toast-icon.denied { background: rgba(158,7,12,0.1); color: var(--rose); }
+    .toast-text h4 { margin: 0 0 4px; font-size: 16px; font-family: Georgia, serif; }
+    .toast-text p { margin: 0; font-size: 13px; color: var(--muted); font-family: Arial, sans-serif; line-height: 1.4; }
+    .toast-close { background: transparent; border: 0; font-size: 20px; color: var(--muted); cursor: pointer; position: absolute; top: -4px; right: -4px; }
+    @keyframes slideIn { 0% { transform: translateY(40px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
   </style>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -296,8 +307,78 @@
       successMsg.style.display = 'block';
     });
 
+    function showToast(type, title, message) {
+      const toast = document.getElementById('statusToast');
+      const icon = document.getElementById('toastIcon');
+      const tTitle = document.getElementById('toastTitle');
+      const tBody = document.getElementById('toastBody');
+      
+      if (!toast || !icon || !tTitle || !tBody) return;
+      
+      tTitle.textContent = title;
+      tBody.textContent = message;
+      
+      icon.className = 'toast-icon ' + type;
+      icon.innerHTML = type === 'approved' ? '✓' : '✗';
+      
+      toast.style.display = 'flex';
+      setTimeout(closeToast, 8000);
+    }
+    
+    function closeToast() {
+      const toast = document.getElementById('statusToast');
+      if (toast) toast.style.display = 'none';
+    }
+
+    async function checkLocalPendingStatus() {
+      const pending = getPendingMembers();
+      if (pending.length === 0) return;
+      
+      const client = getSupabaseClient();
+      if (!client) return;
+      
+      try {
+        const { data, error } = await client
+          .from('join_requests')
+          .select('name')
+          .in('name', pending);
+          
+        if (error) throw error;
+        
+        const activePendingNames = data.map(d => d.name);
+        
+        let approvedList = [];
+        let deniedList = [];
+        
+        pending.forEach(name => {
+          if (defaultMembers.includes(name)) {
+            approvedList.push(name);
+          } else if (!activePendingNames.includes(name)) {
+            deniedList.push(name);
+          }
+        });
+        
+        if (approvedList.length > 0) {
+          showToast('approved', 'Request Approved!', `Congratulations! Your request to join the committee was approved: ${approvedList.join(', ')}`);
+          const cleanPending = pending.filter(name => !approvedList.includes(name));
+          localStorage.setItem('samithi_pending_members', JSON.stringify(cleanPending));
+          renderCommittee();
+        }
+        
+        if (deniedList.length > 0) {
+          showToast('denied', 'Request Denied', `Sorry, your request to join the committee was denied: ${deniedList.join(', ')}`);
+          const cleanPending = pending.filter(name => !deniedList.includes(name));
+          localStorage.setItem('samithi_pending_members', JSON.stringify(cleanPending));
+          renderCommittee();
+        }
+      } catch (err) {
+        console.error("Failed to check pending status: ", err.message);
+      }
+    }
+
     // Initial load
     renderCommittee();
+    checkLocalPendingStatus();
   </script>
   <script>
     const choices = document.getElementById('choices');
@@ -327,5 +408,17 @@
     #choices .choice:nth-child(2) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/utti,kottadam,festival'); }
     #choices .choice:nth-child(3) { background-image:linear-gradient(0deg,rgba(49,7,7,.78),rgba(49,7,7,.12)),url('https://loremflickr.com/800/600/traditional,indian,dance,festival'); }
   </style>
+
+  <!-- Notification Toast -->
+  <div id="statusToast" class="status-toast" style="display:none;">
+    <div class="toast-content">
+      <div id="toastIcon" class="toast-icon"></div>
+      <div class="toast-text">
+        <h4 id="toastTitle">Notification</h4>
+        <p id="toastBody">Message details here.</p>
+      </div>
+      <button class="toast-close" onclick="closeToast()">&times;</button>
+    </div>
+  </div>
 </body>
 </html>
