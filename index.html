@@ -200,8 +200,8 @@
     const defaultMembers = ['P Harish', 'K Pranav Nani', 'K Prajwal', 'AD Vikram', 'Jithendra', 'ThulasiNath', 'S Varun Kumar', 'C Abhilash', 'D Abhilash', 'Nithun Kumar', 'Rahul', 'Saravana'];
     
     // Supabase Configuration Placeholders (Replaced by user or configured via admin page)
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const SUPABASE_URL = 'https://thsawfbvbbfqixptqzzg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoc2F3ZmJ2YmJmcWl4cHRxenpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MzM0NjMsImV4cCI6MjA5OTUwOTQ2M30.IXcupiHWgqyUOf5ea7pYxiedGMv5eKb7WHdoSUEEBS4';
 
     function getSupabaseClient() {
       const url = (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_URL) || localStorage.getItem('samithi_supabase_url');
