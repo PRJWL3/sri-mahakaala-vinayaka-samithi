@@ -177,14 +177,7 @@
             <label for="contribAmount">Amount (₹)</label>
             <input type="number" id="contribAmount" required placeholder="e.g. 5000">
           </div>
-          <div>
-            <label for="contribType">Contribution Type</label>
-            <select id="contribType" style="width:100%; border:1px solid #cfbca4; background:#fffefa; padding:12px; border-radius:4px; font:15px Arial,sans-serif; color:var(--ink); height:46px; margin-bottom:8px;">
-              <option value="Donation">General Donation</option>
-              <option value="Laddoo Auction">Laddoo Auction</option>
-              <option value="Sponsorship">Sponsorship</option>
-            </select>
-          </div>
+
           <div>
             <label for="contribStatus">Verification Status</label>
             <select id="contribStatus" style="width:100%; border:1px solid #cfbca4; background:#fffefa; padding:12px; border-radius:4px; font:15px Arial,sans-serif; color:var(--ink); height:46px; margin-bottom:8px;">
@@ -208,7 +201,6 @@
                 <th>Name</th>
                 <th>Phone Number</th>
                 <th>Amount</th>
-                <th>Type</th>
                 <th>Status</th>
                 <th>Recorded At</th>
                 <th>Action</th>
@@ -503,7 +495,6 @@
       const name = document.getElementById('contribName').value.trim();
       const phone = document.getElementById('contribPhone').value.trim();
       const amount = Number(document.getElementById('contribAmount').value);
-      const type = document.getElementById('contribType').value;
       const status = document.getElementById('contribStatus').value;
 
       if (!name || !phone || isNaN(amount)) return;
@@ -512,7 +503,7 @@
       try {
         const { error } = await supabaseClient
           .from('contributions')
-          .insert([{ name, phone, amount, type, status }]);
+          .insert([{ name, phone, amount, type: 'Contribution', status }]);
 
         if (error) throw error;
 
@@ -562,7 +553,6 @@
             <td style="font-weight:bold;">${escapeHtml(c.name)}</td>
             <td style="font-family:monospace;">${escapeHtml(c.phone)}</td>
             <td style="font-weight:bold; color:var(--saffron);">${amountStr}</td>
-            <td>${escapeHtml(c.type)}</td>
             <td>
               <span style="font-weight:bold; font-size:12px; color:${c.status === 'Confirmed' ? 'var(--leaf)' : 'var(--muted)'}">
                 ${escapeHtml(c.status)}
